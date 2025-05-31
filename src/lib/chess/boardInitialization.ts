@@ -11,7 +11,7 @@ export const setupPawns = (board: Board): void => {
     }
 };
 
-export const setupPieces = (board: Board): void => {
+export const setupOfficials = (board: Board): void => {
     const initialPieces: PieceType[] = [
         "rook", "knight", "bishop", "queen",
         "king", "bishop", "knight", "rook",
@@ -26,6 +26,6 @@ export const setupPieces = (board: Board): void => {
 export const createInitialBoard = (): Board => {
     const board = initializeEmptyBoard();
     setupPawns(board);
-    setupPieces(board);
+    setupOfficials(board);
     return board;
 };

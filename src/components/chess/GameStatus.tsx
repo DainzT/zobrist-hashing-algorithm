@@ -1,7 +1,8 @@
 'use client'
+import { gameStatus } from "@/types/chess";
 
 interface GameStatusProps {
-    gameStatus: string;
+    gameStatus: gameStatus;
     onNewGame?: () => void
     onClose?: () => void
 }

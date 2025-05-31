@@ -1,42 +1,79 @@
 'use client'
+import { PieceMove } from "@/types/chess";
+import { HashTableHeader } from "./HashHeader";
+import { HashTableRow } from "./HashRow";
 
-export const HashTable = () => {
-    return (
-        <main className="font-[Inter] gap-10 p-8">
-            {/* Chess Board (left) */}
-            <div className="flex flex-col items-center">
-                {/* Your existing chess board */}
-            </div>
+type GameType = 'chess' | 'checkers';
 
-            {/* Zobrist Visualization (middle) */}
-            <div className="flex flex-col items-center">
-                {/* Your existing Zobrist grid */}
-            </div>
+interface HashTableProps {
+    type: GameType;
+    currentHash: bigint;
+    moves: PieceMove[];
+}
 
-            {/* Hash Information Panel (right) */}
-            <div className="flex flex-col gap-6 w-80">
-                <div className="sticky top-4 space-y-6">
-                    {/* Enhanced Hash Display */}
-                    <div className="bg-gray-100 p-4 rounded-lg">
-                        {/* ... hash display code from above ... */}
-                    </div>
+export const HashTable = ({
+    type,
+    currentHash,
+    moves = [],
+}: HashTableProps) => {
+    const toChessNotation = (row: number, col: number): string => {
+        const file = String.fromCharCode(97 + col);
+        const rank = 8 - row;
+        return `${file}${rank}`;
+    };
 
-                    {/* Hash Breakdown */}
-                    <div className="p-4 bg-blue-50 rounded-lg">
-                        {/* ... hash composition code ... */}
-                    </div>
-
-                    {/* Move History */}
-                    <div className="max-h-60 overflow-y-auto">
-                        {/* ... move history code ... */}
-                    </div>
-
-                    {/* Position Comparison */}
-                    <div className="p-4 bg-green-50 rounded-lg">
-                        {/* ... comparison code ... */}
+    if (type === 'chess') {
+        return (
+            <div className="w-full">
+                <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-white p-3 rounded-md border border-gray-200 shadow-sm">
+                            <h3 className="text-sm font-medium text-gray-500 mb-1">Initial Hash</h3>
+                            <p className="font-mono text-lg font-semibold">0n</p>
+                        </div>
+                        <div className="bg-white p-3 rounded-md border border-gray-200 shadow-sm">
+                            <h3 className="text-sm font-medium text-gray-500 mb-1">Current Hash</h3>
+                            <p className="font-mono text-lg font-semibold text-blue-600">{currentHash}n</p>
+                        </div>
                     </div>
                 </div>
+
+                <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <HashTableHeader
+                            columns={['Piece', 'Move', 'Hash Operations', 'Result']}
+                        />
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {moves.map((move, index) => {
+                                return (
+                                    <HashTableRow
+                                        key={index}
+                                        move={move}
+                                        index={index}
+                                        toChessNotation={toChessNotation}
+                                    />
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+
+                {moves.length === 0 && (
+                    <div className="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">
+                        <div className="text-gray-500 mb-2">No moves recorded yet</div>
+                        <div className="text-sm text-gray-400">Make a move to see hash calculations</div>
+                    </div>
+                )}
             </div>
-        </main>
-    );
+        );
+    }
+    else if (type === 'checkers') {
+        return (
+            <div className="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">
+                <div className="text-gray-700">Checkers hash visualization coming soon</div>
+            </div>
+        );
+    }
+
+    return null;
 }

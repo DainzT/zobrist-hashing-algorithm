@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Header from "@/components/Header";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,10 +25,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        {children}
+        <Header
+          title="Zobrist Hashing"
+          body="An algorithm efficient for comparing positions"
+        />
+        <main className="h-full flex flex-col items-center justify-center mt-10">
+          {children}
+        </main>
       </body>
     </html>
   );

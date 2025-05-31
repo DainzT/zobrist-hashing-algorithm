@@ -13,7 +13,7 @@ export const PawnPromotion = ({
     color,
     onSelect,
 }: PawnPromotionProps) => {
-    const promotionPieces: PromotionPiece[] = ['queen', 'rook', 'bishop', 'knight'];    
+    const promotionPieces: PromotionPiece[] = ['queen', 'rook', 'bishop', 'knight'];
 
     return (
         <div className="bg-opacity-50 flex items-center justify-center z-50">
@@ -23,9 +23,13 @@ export const PawnPromotion = ({
                         <button
                             key={piece}
                             onClick={() => onSelect(piece)}
-                            className={`p-4 rounded-lg border-2 transition-all hover:scale-105 ${
-                                color === 'white' ? 'bg-white text-black' : 'bg-black text-white'
-                            }`}
+                            className={`
+                                p-4 rounded-lg border-2 transition-all hover:scale-105
+                                ${color === 'white'
+                                    ? 'bg-black text-white'
+                                    : 'bg-white text-black'
+                                }
+                            `}
                         >
                             <div className="flex flex-col items-center w-full h-full">
                                 <span className="text-3xl  w-10">

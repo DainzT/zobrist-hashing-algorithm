@@ -1,4 +1,5 @@
 'use client'
+import { getPieceSymbol } from "@/lib/chess/getPieceSymbol";
 import { ChessPiece as ChessPieceType } from "@/types/chess";
 
 interface ChessPieceProps {
@@ -8,25 +9,6 @@ interface ChessPieceProps {
 export const ChessPiece = ({
     piece,
 }: ChessPieceProps) => {
-
-    const getPieceSymbol = (type: string, color: string): string => {
-        const symbols: Record<string, string> = {
-            "white-king": "♚",
-            "white-queen": "♛",
-            "white-rook": "♜",
-            "white-bishop": "♝",
-            "white-knight": "♞",
-            "white-pawn": "♟",
-            "black-king": "♚",
-            "black-queen": "♛",
-            "black-rook": "♜",
-            "black-bishop": "♝",
-            "black-knight": "♞",
-            "black-pawn": "♟",
-        };
-        return symbols[`${color}-${type}`] || "";
-    };
-
     return (
         <span
             className={`

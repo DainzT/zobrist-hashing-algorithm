@@ -14,7 +14,7 @@ export const ZobristTile = ({
             className={`flex items-center justify-center border text-xs ${isHighlighted ? 'bg-[#ecf77b]' : ''
                 }`}
         >
-            {value !== null ? value.toString().slice(0, 6) : ''}
+            {value !== null ? value.toString().slice(0, 6) + "..." : ''}
         </div>
     )
 };

@@ -1,9 +1,11 @@
 'use client';
 import { useMemo, useRef, useState } from 'react';
-import { Board, PieceType, Position, PromotionData } from '@/types/chess';
+import { Board, PieceMove, PieceType, Position, PromotionData } from '@/types/chess';
 import { initializeZobristTable } from '@/utils/zobrist';
 import { validateMove } from '@/lib/rules';
 import { createInitialBoard } from '@/lib/chess/boardInitialization';
+import { updateBoardAfterPromotion, updateHashAfterPromotion } from '@/lib/logic/chessPromotion';
+import { recordMove } from '@/lib/logic/recordMove';
 
 export const useChessGame = () => {
     const zobristTable = useMemo(initializeZobristTable, []);
@@ -11,21 +13,21 @@ export const useChessGame = () => {
     const [selectedPiece, setSelectedPiece] = useState<Position | null>(null);
     const [currentHash, setCurrentHash] = useState<bigint>(0n);
     const [enPassantTarget, setEnPassantTarget] = useState<Position | null>(null);
-
     const [promotion, setPromotion] = useState<PromotionData>({
         isPromoting: false,
         position: null,
         color: null,
     });
     const [gameStatus, setGameStatus] = useState<string>('ongoing');
-
-    const moveHistory = useRef<bigint[]>([]);
-
+    const [moveHistory, setMoveHistory] = useState<PieceMove[]>([]);
+    
+    const hashCounts = useRef(new Map<bigint, number>()).current;
+    const hashHistory = useRef<bigint[]>([]);
     const checkThreefoldRepetition = (hash: bigint) => {
-        const occurrences = moveHistory.current.filter(h => h === hash).length;
-        moveHistory.current.push(hash);
-        console.log(occurrences)
-        if (occurrences >= 2) {
+        const newCount = (hashCounts.get(hash) || 0) + 1;
+        hashCounts.set(hash, newCount);
+        hashHistory.current.push(hash);
+        if (newCount >= 3) {
             setGameStatus('draw');
             return true;
         }
@@ -33,24 +35,25 @@ export const useChessGame = () => {
     };
 
     const handlePromotionChoice = (pieceType: Exclude<PieceType, 'pawn' | 'king'>) => {
-        if (!promotion.position || !promotion.color) return;
+        if (!promotion.position && !promotion.color) return;
 
-        setBoard(prev => {
-            const newBoard = [...prev.map(r => [...r])];
-            newBoard[promotion.position!.row][promotion.position!.col] = {
-                type: pieceType,
-                color: promotion.color!
-            };
-            return newBoard;
-        });
+        setBoard(prev => updateBoardAfterPromotion(
+            prev,
+            promotion.position,
+            promotion.color,
+            pieceType
+        ));
 
         setCurrentHash(prev => {
-            let newHash = prev;
-            newHash ^= zobristTable[promotion.color!]['pawn'][promotion.position!.row][promotion.position!.col];
-            newHash ^= zobristTable[promotion.color!][pieceType][promotion.position!.row][promotion.position!.col];
+            const newHash = updateHashAfterPromotion(
+                prev,
+                promotion.position,
+                promotion.color,
+                pieceType,
+                zobristTable,
+            );
 
             checkThreefoldRepetition(newHash);
-
             return newHash;
         });
 
@@ -67,6 +70,13 @@ export const useChessGame = () => {
         const { row, col } = position;
         const clickedPiece = board[row][col];
         const selected = selectedPiece ? board[selectedPiece.row][selectedPiece.col] : null;
+
+        if (selectedPiece) {
+            if (selectedPiece.row === row && selectedPiece.col === col) {
+                setSelectedPiece(null);
+                return;
+            }
+        }
 
         if (selectedPiece && selected) {
             if (validateMove(board, selectedPiece, position, enPassantTarget)) {
@@ -155,7 +165,6 @@ export const useChessGame = () => {
 
                 setCurrentHash(prev => {
                     let newHash = prev;
-
                     newHash ^= zobristTable[selected.color][selected.type][selectedPiece.row][selectedPiece.col];
 
                     // En passant capture
@@ -172,8 +181,17 @@ export const useChessGame = () => {
 
                     newHash ^= zobristTable[selected.color][selected.type][row][col];
 
-                    checkThreefoldRepetition(newHash);
+                    recordMove(
+                        selected,
+                        selectedPiece,
+                        position,
+                        zobristTable,
+                        currentHash,
+                        setMoveHistory,
+                    )
 
+                    checkThreefoldRepetition(newHash);
+                    
                     return newHash;
                 });
 
@@ -191,6 +209,17 @@ export const useChessGame = () => {
         console.log("empty tile")
         setSelectedPiece(null);
     };
-
-    return { board, selectedPiece, handleSquareClick, handlePromotionChoice, promotion, zobristTable, gameStatus, currentHash };
+    console.log(moveHistory)
+    return {
+        board,
+        selectedPiece,
+        handleSquareClick,
+        handlePromotionChoice,
+        promotion,
+        zobristTable,
+        gameStatus,
+        currentHash,
+        moveHistory,
+        hashHistory
+    };
 };

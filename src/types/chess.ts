@@ -27,3 +27,29 @@ export type PromotionData = {
     position: Position | null;
     color: 'white' | 'black' | null;
 };
+
+export type gameStatus = 'draw' | 'whiteWin' | 'blacWin'
+
+export interface PieceMove {
+    piece: ChessPiece;
+    from: {
+        row: number;
+        col: number;
+        hash: bigint;
+    };
+    to: {
+        row: number;
+        col: number;
+        hash: bigint;
+    };
+    capturedPiece: {
+        type: PieceType;
+        color: Color;
+        hash: bigint;
+    } | null;
+    isEnPassant: boolean;
+    isCastling: boolean;
+    isPromotion: boolean;
+
+    moveHash: bigint;
+}

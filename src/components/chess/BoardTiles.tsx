@@ -6,6 +6,9 @@ interface BoardTileProps {
     piece: ChessPieceType | null;
     isDark: boolean;
     isSelected: boolean;
+    row: number;
+    col: number;
+    showCoordinates: boolean;
     onClick: () => void;
 };
 
@@ -13,8 +16,15 @@ export const BoardTile = ({
     piece,
     isDark,
     isSelected,
+    row,
+    col,
+    showCoordinates,
     onClick,
 }: BoardTileProps) => {
+    const file = String.fromCharCode(97 + col);
+    const rank = 8 - row;
+    const coordinate = `${file}${rank}`;
+
     return (
         <button
             onClick={onClick}
@@ -25,6 +35,7 @@ export const BoardTile = ({
                 focus:outline-none
                 transition-all duration-200
                 overflow-visible
+                ${piece ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}
                 ${isSelected ? `
                     [&::after]:content-['']
                     [&::after]:absolute 
@@ -39,6 +50,34 @@ export const BoardTile = ({
             `}
         >
             {piece && <ChessPiece piece={piece} />}
+            {showCoordinates && (
+            <span className={`
+                absolute
+                text-[11px]
+                ${isDark ? "text-[#eeeed2]" : "text-[#769656]"}
+                font-medium
+                z-20
+                bottom-1 right-1
+                flex items-center justify-center
+            `}>
+                <span className={`
+                    relative
+                    px-1
+                    ${isDark ? "before:bg-[#769656]/30" : "before:bg-[#eeeed2]/30"}
+                    before:content-['']
+                    before:absolute
+                    before:inset-0
+                    before:rounded-full
+                    before:z-[-1]
+                    before:opacity-80
+                    before:scale-110
+                    hover:before:scale-125
+                    transition-all duration-100
+                `}>
+                    {coordinate}
+                </span>
+            </span>
+            )}
         </button>
     );
 };
