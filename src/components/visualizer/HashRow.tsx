@@ -1,4 +1,3 @@
-'use client'
 import { getPieceSymbol } from "@/lib/chess/getPieceSymbol";
 import { PieceMove } from "@/types/chess";
 
@@ -15,7 +14,10 @@ export const HashTableRow = ({
 }: HashTableRowProps) => {
     const removeHash = move.moveHash ^ move.from.hash;
     const addHash = removeHash ^ move.to.hash;
-    const resultingHash = addHash;
+
+    const captureHash = move.capturedPiece ? removeHash ^ move.capturedPiece.hash : removeHash;
+
+    const resultingHash = move.capturedPiece ? captureHash ^ move.to.hash : addHash;
 
     return (
         <tr key={index} className="hover:bg-[#f8f1e4] transition-colors border-b-2 border-[#e0d0b1] max-w-[500px] w-full ">
@@ -37,8 +39,9 @@ export const HashTableRow = ({
                         </div>
                         <div className="flex gap-1 mt-1">
                             {move.isEnPassant && (
-                                <span className="inline-flex items-center px-1 py-0.5 rounded text-xs font-medium bg-[#d9c3f0] text-[#5d3a8a]">
-                                    en passant
+                                <span className="flex-col  px-1 rounded text-xs font-medium bg-[#d9c3f0] text-[#5d3a8a]">
+                                    <div>en </div>
+                                    <div>passant</div>
                                 </span>
                             )}
                             {move.isCastling && (
@@ -66,15 +69,21 @@ export const HashTableRow = ({
                         {toChessNotation(move.to.row, move.to.col)}
                     </span>
                 </div>
-                {move.capturedPiece && (
-                    <div className="mt-1 flex items-center gap-1 text-xs">
+                {(move.capturedPiece) && (
+                    <div className="mt-1 flex items-start gap-1 text-xs flex-col">
                         <span className="text-[#8a6d5d]">Captured:</span>
-                        <span className="font-medium text-[#c45a4d]">
-                            {move.capturedPiece.type}
-                        </span>
-                        <span className="font-mono text-xs bg-[#f0e5d9] px-1 py-0.5 rounded text-[#8a6d5d]">
-                            {move.capturedPiece.hash}n
-                        </span>
+                        <div className="font-medium text-[#c45a4d]">
+                            {move.capturedPiece.color} {move.capturedPiece.type}
+                        </div>
+                        <div className="font-mono text-xs bg-[#f0e5d9] px-1 py-0.5 text-[#8a6d5d]">
+                            {move.capturedPiece.hash.toString().slice(0, 8)}
+                        </div>
+                        <div className="font-mono text-xs bg-[#f0e5d9] px-1 text-[#8a6d5d]">
+                            {move.capturedPiece.hash.toString().slice(8, 16)}
+                        </div>
+                        <div className="font-mono text-xs bg-[#f0e5d9] px-1  text-[#8a6d5d]">
+                            {move.capturedPiece.hash.toString().slice(16, 20)}n
+                        </div>
                     </div>
                 )}
             </td>
@@ -91,22 +100,23 @@ export const HashTableRow = ({
                             <div className="text-[#8a6d5d]">Capture:</div>
                             <div>{removeHash}n ^ {move.capturedPiece.hash}n</div>
                             <div className="text-[#4a766d] font-medium">
-                                = {removeHash ^ move.capturedPiece.hash}n
+                                = {captureHash}n
                             </div>
                         </div>
                     )}
                     <div className="bg-[#f0e5d9] p-1 rounded font-mono text-xs text-[#5d432c]">
                         <div className="text-[#8a6d5d]">Add:</div>
-                        <div>{removeHash}n ^ {move.to.hash}n</div>
+                        <div>{captureHash}n ^ {move.to.hash}n</div>
                         <div className="text-[#4a766d] font-medium">
-                            = {addHash}n
+                            = {resultingHash}n
                         </div>
                     </div>
                 </div>
             </td>
             <td className="px-2 py-2 w-1/4">
-                <div className="font-mono bg-[#e5f0d9] text-[#4a766d] p-1 rounded text-center font-medium text-xs">
-                    {resultingHash}n
+                <div className="font-mono bg-[#e5f0d9] text-[#4a766d] p-1 text-left font-medium text-xs">
+                        <div>{resultingHash.toString().slice(0, 15)}</div>
+                        <div>{resultingHash.toString().slice(15, 20)}n</div>
                 </div>
             </td>
         </tr>

@@ -32,7 +32,7 @@ export default function RootLayout({
         
         <Header
           title="Zobrist Hashing"
-          body="An algorithm efficient for comparing chess positions"
+          body="An algorithm efficient for comparing positions"
         />
         
         <main className="relative z-10 w-full max-w-10xl mx-auto px-4 py-8">
