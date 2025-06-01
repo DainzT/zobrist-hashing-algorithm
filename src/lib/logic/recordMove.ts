@@ -1,4 +1,5 @@
 import { ChessPiece, PieceColor, PieceMove, PieceType, Position, ZobristTable } from "@/types/chess";
+import { select } from "framer-motion/client";
 import { Dispatch, SetStateAction } from "react";
 
 export const recordMove = (
@@ -14,7 +15,7 @@ export const recordMove = (
     isCastling?: boolean,
     isPromotion?: boolean,
 ) => {
-    const fromHash = zobristTable[piece.color][piece.type][from.row][from.col];
+    const fromHash = zobristTable[piece.color][ isPromotion ? 'pawn' : piece.type ][from.row][from.col];
     const toHash = zobristTable[piece.color][piece.type][to.row][to.col];
     const capturedPieceData: { type: PieceType; color: PieceColor; hash: bigint } | null = (() => {
         if (isEnPassant && enPassantCaptured) {
@@ -35,8 +36,6 @@ export const recordMove = (
         return null;
     })();
 
-
-    console.log(capturedPieceData)
     const move: PieceMove = {
         piece,
         from: {

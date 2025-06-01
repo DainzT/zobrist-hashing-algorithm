@@ -64,12 +64,27 @@ export const useChessGame = () => {
         setCurrentHash(prev => {
             const newHash = updateHashAfterPromotion(
                 prev,
+                promotion.from!,
                 promotion.position,
                 promotion.color,
                 pieceType,
                 zobristTable,
+                promotion.capturedPiece!,
             );
 
+            recordMove(
+                {type: pieceType, color: promotion.color!},
+                promotion.from!,
+                promotion.position!,
+                zobristTable,
+                currentHash,
+                setMoveHistory,
+                promotion.capturedPiece,
+                undefined,
+                undefined,
+                undefined,
+                true
+            );
             checkThreefoldRepetition(newHash);
             return newHash;
         });
@@ -79,6 +94,7 @@ export const useChessGame = () => {
             position: null,
             color: null,
         });
+
     };
 
     const handleSquareClick = (position: Position) => {
@@ -141,8 +157,10 @@ export const useChessGame = () => {
                 if (isPromotionMove) {
                     setPromotion({
                         isPromoting: true,
+                        from: selectedPiece,
                         position,
                         color: selected.color,
+                        capturedPiece: clickedPiece!,
                     });
 
                     setBoard(prev => {
@@ -178,7 +196,7 @@ export const useChessGame = () => {
                 } else {
                     setEnPassantTarget(null);
                 }
-                
+
                 setCurrentHash(prev => {
                     let newHash = prev;
                     newHash ^= zobristTable[selected.color][selected.type][selectedPiece.row][selectedPiece.col];
@@ -206,7 +224,7 @@ export const useChessGame = () => {
                         currentHash,
                         setMoveHistory,
                         clickedPiece,
-                        {type: 'pawn', color: capturedColor},
+                        { type: 'pawn', color: capturedColor },
                         (selected.type === 'pawn' && Math.abs(col - selectedPiece.col) === 1 && !clickedPiece && enPassantTarget?.row === row && enPassantTarget?.col === col),
                     )
 
@@ -226,7 +244,6 @@ export const useChessGame = () => {
             return;
         }
 
-        console.log("empty tile")
         setSelectedPiece(null);
     };
     console.log(moveHistory)

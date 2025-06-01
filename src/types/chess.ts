@@ -26,6 +26,8 @@ export type PromotionData = {
     isPromoting: boolean;
     position: Position | null;
     color: 'white' | 'black' | null;
+    capturedPiece?: ChessPiece
+    from?: Position;
 };
 
 export type gameStatus = 'draw' | 'whiteWin' | 'blacWin'
