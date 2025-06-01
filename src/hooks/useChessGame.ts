@@ -20,9 +20,26 @@ export const useChessGame = () => {
     });
     const [gameStatus, setGameStatus] = useState<string>('ongoing');
     const [moveHistory, setMoveHistory] = useState<PieceMove[]>([]);
-    
+
     const hashCounts = useRef(new Map<bigint, number>()).current;
     const hashHistory = useRef<bigint[]>([]);
+
+    const resetBoard = () => {
+        setBoard(createInitialBoard());
+        setSelectedPiece(null);
+        setCurrentHash(0n);
+        setEnPassantTarget(null);
+        setPromotion({
+            isPromoting: false,
+            position: null,
+            color: null,
+        });
+        setGameStatus('ongoing');
+        setMoveHistory([]);
+        hashCounts.clear();
+        hashHistory.current = [];
+    };
+
     const checkThreefoldRepetition = (hash: bigint) => {
         const newCount = (hashCounts.get(hash) || 0) + 1;
         hashCounts.set(hash, newCount);
@@ -191,7 +208,7 @@ export const useChessGame = () => {
                     )
 
                     checkThreefoldRepetition(newHash);
-                    
+
                     return newHash;
                 });
 
@@ -220,6 +237,7 @@ export const useChessGame = () => {
         gameStatus,
         currentHash,
         moveHistory,
-        hashHistory
+        hashHistory,
+        resetBoard,
     };
 };

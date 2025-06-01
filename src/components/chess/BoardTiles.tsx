@@ -31,19 +31,19 @@ export const BoardTile = ({
             className={`
                 w-full h-full flex items-center justify-center
                 relative
-                ${isDark ? "bg-[#000000]" : "bg-[#ffffff]"}
+                ${isDark ? "bg-[#5d8a66]" : "bg-[#f0d9b5]"}
                 focus:outline-none
                 transition-all duration-200
                 overflow-visible
                 ${piece ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}
                 ${isSelected ? `
                     [&::after]:content-['']
-                    [&::after]:absolute 
+                    [&::after]:absolute
                     [&::after]:inset-0
                     [&::after]:rounded-[1px]
-                    [&::after]:border-2 
-                    [&::after]:border-[#72ff70]
-                    [&::after]:shadow-[0_0_10px_3px_rgba(114,255,112,0.7)]
+                    [&::after]:border-2
+                    [&::after]:border-[#ffeb3b]
+                    [&::after]:shadow-[0_0_10px_3px_rgba(255,235,59,0.5)]
                     [&::after]:z-10
                     [&::after]:pointer-events-none
                 ` : ''}
@@ -51,19 +51,19 @@ export const BoardTile = ({
         >
             {piece && <ChessPiece piece={piece} />}
             {showCoordinates && (
-            <span className={`
+                <span className={`
                 absolute
                 text-[11px]
-                ${isDark ? "text-[#eeeed2]" : "text-[#769656]"}
+                ${isDark ? "text-[#f0d9b5]" : "text-[#5d8a66]"}
                 font-medium
                 z-20
                 bottom-1 right-1
                 flex items-center justify-center
             `}>
-                <span className={`
+                    <span className={`
                     relative
                     px-1
-                    ${isDark ? "before:bg-[#769656]/30" : "before:bg-[#eeeed2]/30"}
+                    ${isDark ? "before:bg-[#f0d9b5]/20" : "before:bg-[#5d8a66]/20"}
                     before:content-['']
                     before:absolute
                     before:inset-0
@@ -74,9 +74,9 @@ export const BoardTile = ({
                     hover:before:scale-125
                     transition-all duration-100
                 `}>
-                    {coordinate}
+                        {coordinate}
+                    </span>
                 </span>
-            </span>
             )}
         </button>
     );

@@ -16,18 +16,22 @@ export const PawnPromotion = ({
     const promotionPieces: PromotionPiece[] = ['queen', 'rook', 'bishop', 'knight'];
 
     return (
-        <div className="bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white/80 p-6 rounded-lg shadow-lg">
+        <div className="bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300">
+            <div className={`
+                bg-[#f0d9b5]/90 p-6 rounded-xl border-2 border-[#b58863]
+                shadow-xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
+            `}>
                 <div className="grid grid-cols-2 gap-4">
                     {promotionPieces.map((piece) => (
                         <button
                             key={piece}
                             onClick={() => onSelect(piece)}
                             className={`
-                                p-4 rounded-lg border-2 transition-all hover:scale-105
+                                p-4 rounded-lg border-2 transition-all  hover:scale-105 active:scale-95 
+                                cursor-pointer
                                 ${color === 'white'
-                                    ? 'bg-black text-white'
-                                    : 'bg-white text-black'
+                                    ? 'bg-[#5d8a66] border-[#4a6b57] text-[#ffffff] [text-shadow:_3px_0_0_#000,_-1px_0_0_#000,_0_1px_0_#000,_0_-1px_0_#000]'
+                                    : 'bg-[#5d8a66] border-[#4a6b57] text-black [text-shadow:_1px_0_0_#fff,_-2px_0_0_#fff,_0_1px_0_#fff,_0_-1px_0_#fff]'
                                 }
                             `}
                         >
