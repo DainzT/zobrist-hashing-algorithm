@@ -11,6 +11,7 @@ import { BoardCoordinates } from "@/components/chess/BoardCoordinates";
 import { ToggleButton } from "@/components/chess/buttons/ToggleButton";
 import { TogglePanelButton } from "@/components/chess/buttons/TogglePanelButton";
 import { RestartButton } from "@/components/chess/buttons/RestartButton";
+import { HashTag } from "@/components/visualizer/HashTag";
 
 const ChessBoard = () => {
     const {
@@ -31,6 +32,8 @@ const ChessBoard = () => {
     const [showZobristTable, setShowZobristTable] = useState<boolean>(false);
     const [showHashTable, setShowHashTable] = useState<boolean>(false);
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
+    const [isTransparent, setIsTransparent] = useState<boolean>(false);
+    const [isLeft, setIsLeft] = useState<boolean>(false);
 
     const handleLastActive = (row: number, col: number) => {
         setIsActive({ row, col })
@@ -45,7 +48,6 @@ const ChessBoard = () => {
         <main
             className="
                 flex flex-col items-center w-full gap-6 p-6
-                bg-gradient-to-br from-[#f8f5f0] to-[#e8e3d9] min-h-screen
             ">
             <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl">
                 <div className="bg-[#f0d9b5] p-6 rounded-xl shadow-lg border-2 border-[#b58863] flex-1">
@@ -73,7 +75,6 @@ const ChessBoard = () => {
                         </div>
                     </div>
                 </div>
-
                 <div className="bg-[#f0d9b5] p-6 rounded-xl shadow-lg border-2 border-[#b58863] flex-1">
                     <h2 className="text-xl font-medium mb-4 text-[#5d8a66] tracking-tight">Visualization</h2>
                     <div className="flex flex-col lg:flex-row gap-3 w-full">
@@ -88,7 +89,7 @@ const ChessBoard = () => {
                                 <div className="absolute mt-2 w-full bg-white rounded-md shadow-lg z-10 p-2 border border-[#b58863]">
                                     <div className="flex-col items-center justify-between">
                                         <span className="text-sm font-medium text-[#5d8a66] px-1 py-1">
-                                            Table Settings
+                                            Zobrist Settings
                                         </span>
                                         <div className="border-t border-[#b58863]/30 mb-2"></div>
                                         <ToggleButton
@@ -102,20 +103,47 @@ const ChessBoard = () => {
                                 </div>
                             )}
                         </div>
-                        <div>
+                        <div className="relative flex-[0.5]">
                             <TogglePanelButton
                                 isOpen={showHashTable}
                                 onClick={() => setShowHashTable(!showHashTable)}
                                 label="Hash Table"
                                 className="w-full"
                             />
+                            {showHashTable && (
+                                <div className="absolute mt-2 w-full bg-white rounded-md shadow-lg z-10 p-2 border border-[#b58863]">
+                                    <div className="flex-col items-center justify-between">
+                                        <span className="text-sm font-medium text-[#5d8a66] px-1 py-1">
+                                            Hash Settings
+                                        </span>
+                                        <div className="border-t border-[#b58863]/30 mb-2"></div>
+                                        <ToggleButton
+                                            action={isTransparent}
+                                            setAction={setIsTransparent}
+                                            toggleOffPrompt="On Transparency"
+                                            toggleOnPrompt="Off Transparency"
+                                            className="w-full"
+                                        />
+                                        <ToggleButton
+                                            action={isLeft}
+                                            setAction={setIsLeft}
+                                            toggleOffPrompt="Switch Left"
+                                            toggleOnPrompt="Switch Right"
+                                            className="w-full"
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
-            <div className={showZobristTable ? "flex-1 flex flex-col lg:flex-row justify-between gap-6 lg:gap-12" : ""}>
+            <div className={`
+                ${showZobristTable ? "flex-1 flex flex-col lg:flex-row justify-between gap-6 lg:gap-12" : ""}
+                ${showHashTable && !showZobristTable ? "flex-1 flex flex-col lg:flex-row justify-between gap-6 lg:gap-12" : ""}`
+            }>
                 <div className={`${showZobristTable ? "flex" : "flex flex-col items-center w-full"}`}>
-                    <div className="bg-[#b58863] p-2 sm:p-3 rounded-xl shadow-xl border-2 border-[#5d8a66] font-mono">
+                    <div className="bg-[#b58863] p-2 sm:p-3 rounded-xl shadow-xl border-2 border-[#5d8a66] font-mono z-50">
                         <BoardCoordinates showBoardCoordinates={showBoardCoordinates}>
                             <section
                                 className={`
@@ -212,23 +240,44 @@ const ChessBoard = () => {
                         </div>
                     </div>
                 )}
+                {(showHashTable && !showZobristTable) && (
+                    <div
+                        className="
+                            h-auto p-3 "
+                    >
+                        <div className="w-[500px]">
+                            <HashTag
+                                currentHash={currentHash}
+                            />
+                            <HashTable
+                                type='chess'
+                                moves={moveHistory}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
-            <div className={`
-                    bg-[#f0d9b5] rounded-xl shadow-lg transition-all duration-300 
-                    overflow-auto border-2 border-[#5d8a66] w-full max-w-6xl
-                    ${showHashTable
-                    ? 'max-h-[500px] p-6 opacity-100'
-                    : 'max-h-0 p-0 border-0'
-                }
-                `}>
-                <h3 className="text-lg font-medium mb-3 text-[#5d8a66]">Move History</h3>
-                <HashTable
-                    type='chess'
-                    currentHash={currentHash}
-                    moves={moveHistory}
-                />
-            </div>
-
+            {(showHashTable && showZobristTable) && (
+                <div
+                    className={`
+                        ${isTransparent ? "opacity-20": "z-50"}
+                        absolute h-auto p-4  bg-white border border-[#5d8a66] rounded-md 
+                        top-1/2 transform -translate-y-1/2 scale-98
+                        shadow-lg transition-all duration-300
+                        ${isLeft ? "left-1 mt-27": "-right-0.5 mt-33 "}
+                    `}
+                >
+                    <div className="w-[500px] h-[500px] rounded-md ">
+                        <HashTag
+                            currentHash={currentHash}
+                        />
+                        <HashTable
+                            type='chess'
+                            moves={moveHistory}
+                        />
+                    </div>
+                </div>
+            )}
         </main>
     )
 };

@@ -12,16 +12,20 @@ const Header = ({
     className = "",
 }: HeaderProps) => {
     return (
-        <header className={`bg-gradient-to-r from-gray-800 to-gray-700 text-white p-4 shadow-lg ${className}`}>
-            <div className="max-w-7xl mx-auto flex flex-col gap-1">
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-                    {title}
-                </h1>
-                {body && (
-                    <p className="text-gray-300 text-sm md:text-base max-w-3xl leading-snug">
-                        {body}
-                    </p>
-                )}
+        <header className={`bg-gradient-to-br from-[#5d8a66] to-[#3a5d4a] text-white p-6 shadow-md ${className}`}>
+            <div className="max-w-7xl mx-auto flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                    <div>
+                        <h1 className="text-2xl md:text-3xl font-bold tracking-tight font-serif">
+                            {title}
+                        </h1>
+                        {body && (
+                            <p className="text-[#e8e3d9] text-sm md:text-base max-w-3xl leading-relaxed mt-2">
+                                {body}
+                            </p>
+                        )}
+                    </div>
+                </div>
             </div>
         </header>
     );
