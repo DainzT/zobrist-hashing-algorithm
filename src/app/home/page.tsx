@@ -38,7 +38,7 @@ export default function ZobristHashingPage() {
                         </p>
                         <ul className="list-disc pl-5 space-y-2">
                             <li>Each piece-square combination gets a unique 64-bit number</li>
-                            <li>Empty squares don't contribute to the hash</li>
+                            <li>Empty squares don&apos;t contribute to the hash</li>
                             <li>Moving a piece requires just two XOR operations</li>
                             <li>Castling rights and en passant are also encoded</li>
                         </ul>
@@ -49,7 +49,7 @@ export default function ZobristHashingPage() {
                     <h2 className="text-2xl font-semibold text-[#5d8a66] mb-3">Visualization</h2>
                     <div className="bg-[#f0d9b5]/30 p-6 rounded-lg border border-[#b58863]/50">
                         <p className="mb-4 text-gray-700">
-                            The interactive chess board that I made demonstrates Zobrist hashing in action. Each move updates the board's
+                            The interactive chess board that I made demonstrates Zobrist hashing in action. Each move updates the board&apos;s
                             hash value incrementally, showing how the technique works in real-time.
                         </p>
                         <Link

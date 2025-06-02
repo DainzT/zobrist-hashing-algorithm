@@ -1,6 +1,6 @@
 'use client';
-import { useMemo, useRef, useState } from 'react';
-import { Board, gameStatus, PieceMove, PieceType, Position, PromotionData, RookMovedKeys } from '@/types/chess';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Board, Color, gameStatus, PieceMove, PieceType, Position, PromotionData, RookMovedKeys } from '@/types/chess';
 import { initializeZobristTable } from '@/utils/zobrist';
 import { validateMove } from '@/lib/rules';
 import { createInitialBoard } from '@/lib/chess/boardInitialization';
@@ -9,6 +9,10 @@ import { recordMove } from '@/lib/logic/recordMove';
 import { hasLegalMovesForKing } from '@/lib/logic/hasLegalMovesForKing';
 import { isKingInCheck } from '@/lib/logic/isKingInCheck';
 import { findKingPosition } from '@/lib/logic/findKingPosition';
+import { wouldLeaveKingInCheck } from '@/lib/logic/wouldLeaveKingInCheck';
+import { canCheckBeBlocked } from '@/lib/logic/canCheckBeBlocked';
+import { canCheckingPieceBeCaptured } from '@/lib/logic/canCheckingPieceBeCaptured';
+import { findAllCheckingPieces } from '@/lib/logic/findAllCheckingPieces';
 
 export const useChessGame = () => {
     const zobristTable = useMemo(initializeZobristTable, []);
@@ -70,7 +74,7 @@ export const useChessGame = () => {
         setCurrentTurn('white');
         setReview(false);
     };
-    console.log(gameStatus)
+
     const checkThreefoldRepetition = (hash: bigint) => {
         const newCount = (hashCounts.get(hash) || 0) + 1;
         hashCounts.set(hash, newCount);
@@ -80,6 +84,30 @@ export const useChessGame = () => {
             return true;
         }
         return false;
+    };
+
+    const checkForCheckmate = (board: Board, currentTurn: Color) => {
+        const kingPosition = findKingPosition(board, currentTurn);
+
+        if (gameMode === "turn-based" && isKingInCheck(board, kingPosition, currentTurn)) {
+            if (hasLegalMovesForKing(board, kingPosition, currentTurn)) {
+                return;
+            }
+
+            const checkingPieces = findAllCheckingPieces(board, kingPosition, currentTurn);
+
+            if (checkingPieces.length > 1) {
+                setGameStatus('checkmate');
+                return;
+            }
+
+            const canBeCaptured = canCheckingPieceBeCaptured(board, checkingPieces[0], currentTurn);
+            const canBeBlocked = canCheckBeBlocked(board, checkingPieces[0], kingPosition, currentTurn);
+
+            if (!canBeCaptured && !canBeBlocked) {
+                setGameStatus('checkmate');
+            }
+        }
     };
 
     const handlePromotionChoice = (pieceType: Exclude<PieceType, 'pawn' | 'king'>) => {
@@ -154,16 +182,6 @@ export const useChessGame = () => {
         }
 
         if (selectedPiece && selected) {
-            if (gameMode === 'turn-based') {
-                const kingPosition = findKingPosition(board, currentTurn);
-                if (isKingInCheck(board, kingPosition, currentTurn)) {
-
-                    if (!hasLegalMovesForKing(board, kingPosition, currentTurn)) {
-                        setGameStatus('checkmate');
-                    }
-                }
-            }
-
             const kingMovedFlag = castlingRights[`${selected.color}KingMoved`];
             const rookMovedFlags = castlingRights.hasRookMoved;
 
@@ -175,6 +193,11 @@ export const useChessGame = () => {
                 kingMovedFlag,
                 rookMovedFlags,
             )) {
+                if (wouldLeaveKingInCheck(board, selectedPiece, position, selected.color)) {
+                    setSelectedPiece(null);
+                    return;
+                };
+
                 const isPromotionMove = selected.type === 'pawn' && (row === 0 || row === 7);
                 const isCastlingMove = selected.type === 'king' && Math.abs(position.col - selectedPiece.col) === 2;
 
@@ -258,7 +281,6 @@ export const useChessGame = () => {
                             undefined,
                         )
 
-                        console.log()
                         checkThreefoldRepetition(newHash);
                         return newHash;
                     });
@@ -344,7 +366,7 @@ export const useChessGame = () => {
                             && enPassantTarget?.row === row
                             && enPassantTarget?.col === col),
                     )
-                    
+
                     checkThreefoldRepetition(newHash);
 
                     return newHash;
@@ -369,11 +391,16 @@ export const useChessGame = () => {
         setSelectedPiece(null);
     };
 
+    useEffect(() => {
+        if (gameStatus === 'ongoing') {
+            checkForCheckmate(board, currentTurn);
+        }
+    }, [board, currentTurn, gameStatus]);
+
     const toggleGameMode = () => {
         setGameMode(prev => (prev === 'turn-based' ? 'free-move' : 'turn-based'));
         resetBoard();
     };
-    console.log(gameMode)
     return {
         board,
         selectedPiece,
