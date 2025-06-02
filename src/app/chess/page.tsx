@@ -12,6 +12,7 @@ import { ToggleButton } from "@/components/chess/buttons/ToggleButton";
 import { TogglePanelButton } from "@/components/chess/buttons/TogglePanelButton";
 import { RestartButton } from "@/components/chess/buttons/RestartButton";
 import { HashTag } from "@/components/visualizer/HashTag";
+import { TurnDisplay } from "@/components/chess/TurnDisplay";
 
 const ChessBoard = () => {
     const {
@@ -25,6 +26,11 @@ const ChessBoard = () => {
         currentHash,
         moveHistory,
         resetBoard,
+        gameMode,
+        toggleGameMode,
+        currentTurn,
+        review,
+        setReview
     } = useChessGame();
     const [isActive, setIsActive] = useState<Position>();
     const [showBoardCoordinates, setShowBoardCoordinates] = useState<boolean>(false);
@@ -50,9 +56,16 @@ const ChessBoard = () => {
                 flex flex-col items-center w-full gap-6 p-6
             ">
             <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl">
-                <div className="bg-[#f0d9b5] p-6 rounded-xl shadow-lg border-2 border-[#b58863] flex-1">
-                    <h2 className="text-xl font-medium mb-4 text-[#5d8a66] tracking-tight">Board Settings</h2>
-
+                <div className="bg-[#f0d9b5] p-6 rounded-xl shadow-lg border-2 border-[#b58863] flex-1 ">
+                    <div className="flex justify-between items-start mb-4">
+                        <h2 className="text-xl font-medium text-[#5d8a66] tracking-tight">Board Settings</h2>
+                        <div className="flex items-center gap-2 bg-[#5d8a66]/20 px-3 py-1 rounded-full border border-[#5d8a66]/30">
+                            <span className="text-base font-medium text-[#5d8a66]">Mode:</span>
+                            <span className="text-sm font-semibold text-[#4a6b57] capitalize">
+                                {gameMode === 'turn-based' ? 'Turn-Based' : 'Free Move'}
+                            </span>
+                        </div>
+                    </div>
                     <div className="flex flex-col gap-4">
                         <div className="flex flex-col lg:flex-row gap-3">
                             <ToggleButton
@@ -70,8 +83,14 @@ const ChessBoard = () => {
                             />
                         </div>
 
-                        <div className="flex items-center pt-2 border-t border-[#b58863]/30">
+                        <div className="flex items-center pt-2 border-t border-[#b58863]/30 gap-29">
                             <RestartButton onClick={resetBoard} />
+                            <ToggleButton
+                                action={gameMode === 'turn-based'}
+                                setAction={toggleGameMode}
+                                toggleOffPrompt="Switch to Turn-Based Mode"
+                                toggleOnPrompt="Switch to Free Move Mode"
+                            />
                         </div>
                     </div>
                 </div>
@@ -117,21 +136,28 @@ const ChessBoard = () => {
                                             Hash Settings
                                         </span>
                                         <div className="border-t border-[#b58863]/30 mb-2"></div>
-                                        <ToggleButton
-                                            action={isTransparent}
-                                            setAction={setIsTransparent}
-                                            toggleOffPrompt="On Transparency"
-                                            toggleOnPrompt="Off Transparency"
-                                            className="w-full"
-                                        />
-                                        {(showHashTable && showZobristTable) && (
-                                            <ToggleButton
-                                                action={isLeft}
-                                                setAction={setIsLeft}
-                                                toggleOffPrompt="Switch Left"
-                                                toggleOnPrompt="Switch Right"
-                                                className="w-full"
-                                            />
+                                        {(showHashTable && showZobristTable) ? (
+                                            <>
+                                                <ToggleButton
+                                                    action={isTransparent}
+                                                    setAction={setIsTransparent}
+                                                    toggleOffPrompt="On Transparency"
+                                                    toggleOnPrompt="Off Transparency"
+                                                    className="w-full"
+                                                />
+
+                                                <ToggleButton
+                                                    action={isLeft}
+                                                    setAction={setIsLeft}
+                                                    toggleOffPrompt="Switch Left"
+                                                    toggleOnPrompt="Switch Right"
+                                                    className="w-full"
+                                                />
+                                            </>
+                                        ) : (
+                                            <span className="ml-3 text-sm font-medium text-[#c1574d]">
+                                                None to show for this view
+                                            </span>
                                         )}
                                     </div>
                                 </div>
@@ -140,12 +166,17 @@ const ChessBoard = () => {
                     </div>
                 </div>
             </div>
+            {gameMode === 'turn-based' && (
+                <TurnDisplay
+                    currentTurn={currentTurn}
+                />
+            )}
             <div className={`
-                ${showZobristTable ? "flex-1 flex flex-col lg:flex-row justify-between gap-6 lg:gap-12" : ""}
+                ${showZobristTable ? "flex-1 flex flex-col lg:flex-row justify-between gap-6 lg:gap-15" : ""}
                 ${showHashTable && !showZobristTable ? "flex-1 flex flex-col lg:flex-row justify-between gap-6 lg:gap-12" : ""}`
             }>
                 <div className={`${showZobristTable ? "flex" : "flex flex-col items-center w-full"}`}>
-                    <div className="bg-[#b58863] p-2 sm:p-3 rounded-xl shadow-xl border-2 border-[#5d8a66] font-mono z-50">
+                    <div className="bg-[#b58863] p-2 sm:p-3 rounded-xl shadow-xl  font-mono z-50">
                         <BoardCoordinates showBoardCoordinates={showBoardCoordinates}>
                             <section
                                 className={`
@@ -187,13 +218,19 @@ const ChessBoard = () => {
                                     </div>
                                 )}
 
-                                {gameStatus === "draw" && (
+                                {(gameStatus === 'draw' || gameStatus === 'checkmate') && (
                                     <div
                                         className="
-                                        absolute inset-0 flex items-center 
-                                        justify-center z-50 bg-black/50
-                                ">
-                                        <GameStatus gameStatus={gameStatus} />
+                                            absolute inset-0 flex items-center
+                                            justify-center z-50
+                                        ">
+                                        <GameStatus
+                                            gameStatus={gameStatus}
+                                            onNewGame={resetBoard}
+                                            winner={currentTurn === "black" ? 'white' : 'black'}
+                                            onReview={() => setReview(true)}
+                                            reviewing={review}
+                                        />
                                     </div>
                                 )}
                             </section>
@@ -202,8 +239,8 @@ const ChessBoard = () => {
                 </div>
                 {showZobristTable && (
                     <div className={`
-                    bg-[#f0d9b5] rounded-xl shadow-md transition-all duration-300 
-                    overflow-hidden border border-[#5d8a66]
+                    bg-[#b58863] rounded-xl shadow-md transition-all duration-300 
+                    overflow-hidden
                     ${showZobristTable
                             ? 'opacity-100 h-full lg-[h-500px] p-3'
                             : 'p-0 border-0 opacity-0'
@@ -212,7 +249,7 @@ const ChessBoard = () => {
                         <div
                             className="
                             w-full lg:w-[500px] h-auto aspect-square border border-[#b58863]
-                            shadow-inner  grid grid-cols-8 grid-rows-8
+                            shadow-inner  grid grid-cols-8 grid-rows-8 bg-[#f0d9b5]
                     ">
                             {zobristValues ? (
                                 Array(8).fill(0).map((_, rowIndex) => (
@@ -264,10 +301,10 @@ const ChessBoard = () => {
                 <div
                     className={`
                         ${isTransparent ? "opacity-20" : "z-50"}
-                        absolute h-auto p-4  bg-white border border-[#5d8a66] rounded-md 
+                        absolute h-auto p-4  bg-white border-2 border-[#b58863] rounded-md 
                         top-1/2 transform -translate-y-1/2 scale-98
                         shadow-lg transition-all duration-300
-                        ${isLeft ? "left-1 mt-27" : "-right-0.5 mt-33 "}
+                        ${isLeft ? "left-1 mt-27" : "right-1 mt-33 "}
                     `}
                 >
                     <div className="w-[500px] h-[500px] rounded-md ">
@@ -281,6 +318,7 @@ const ChessBoard = () => {
                     </div>
                 </div>
             )}
+
         </main>
     )
 };

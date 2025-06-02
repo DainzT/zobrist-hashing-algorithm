@@ -1,11 +1,14 @@
 'use client';
 import { useMemo, useRef, useState } from 'react';
-import { Board, PieceMove, PieceType, Position, PromotionData, RookMovedKeys } from '@/types/chess';
+import { Board, gameStatus, PieceMove, PieceType, Position, PromotionData, RookMovedKeys } from '@/types/chess';
 import { initializeZobristTable } from '@/utils/zobrist';
 import { validateMove } from '@/lib/rules';
 import { createInitialBoard } from '@/lib/chess/boardInitialization';
 import { updateBoardAfterPromotion, updateHashAfterPromotion } from '@/lib/logic/chessPromotion';
 import { recordMove } from '@/lib/logic/recordMove';
+import { hasLegalMovesForKing } from '@/lib/logic/hasLegalMovesForKing';
+import { isKingInCheck } from '@/lib/logic/isKingInCheck';
+import { findKingPosition } from '@/lib/logic/findKingPosition';
 
 export const useChessGame = () => {
     const zobristTable = useMemo(initializeZobristTable, []);
@@ -18,7 +21,7 @@ export const useChessGame = () => {
         position: null,
         color: null,
     });
-    const [gameStatus, setGameStatus] = useState<string>('ongoing');
+    const [gameStatus, setGameStatus] = useState<gameStatus>('ongoing');
     const [moveHistory, setMoveHistory] = useState<PieceMove[]>([]);
     const [castlingRights, setCastlingRights] = useState<{
         whiteKingMoved: boolean;
@@ -34,9 +37,11 @@ export const useChessGame = () => {
             'black-0-0': false
         }
     });
-
     const hashCounts = useRef(new Map<bigint, number>()).current;
     const hashHistory = useRef<bigint[]>([]);
+    const [gameMode, setGameMode] = useState<'turn-based' | 'free-move'>('turn-based');
+    const [currentTurn, setCurrentTurn] = useState<'white' | 'black'>('white');
+    const [review, setReview] = useState<boolean>(false);
 
     const resetBoard = () => {
         setBoard(createInitialBoard());
@@ -62,8 +67,10 @@ export const useChessGame = () => {
                 'black-0-0': false
             }
         });
+        setCurrentTurn('white');
+        setReview(false);
     };
-    console.log(board)
+    console.log(gameStatus)
     const checkThreefoldRepetition = (hash: bigint) => {
         const newCount = (hashCounts.get(hash) || 0) + 1;
         hashCounts.set(hash, newCount);
@@ -127,14 +134,36 @@ export const useChessGame = () => {
         const { row, col } = position;
         const clickedPiece = board[row][col];
         const selected = selectedPiece ? board[selectedPiece.row][selectedPiece.col] : null;
+
         if (selectedPiece) {
-            if (selectedPiece.row === row && selectedPiece.col === col) {
+            if (selectedPiece.row === row &&
+                selectedPiece.col === col
+            ) {
                 setSelectedPiece(null);
                 return;
             }
         }
 
+        if (gameMode === 'turn-based') {
+            if (!selectedPiece && clickedPiece && clickedPiece.color !== currentTurn) {
+                return;
+            }
+            if (selected && selected.color !== currentTurn) {
+                return;
+            }
+        }
+
         if (selectedPiece && selected) {
+            if (gameMode === 'turn-based') {
+                const kingPosition = findKingPosition(board, currentTurn);
+                if (isKingInCheck(board, kingPosition, currentTurn)) {
+
+                    if (!hasLegalMovesForKing(board, kingPosition, currentTurn)) {
+                        setGameStatus('checkmate');
+                    }
+                }
+            }
+
             const kingMovedFlag = castlingRights[`${selected.color}KingMoved`];
             const rookMovedFlags = castlingRights.hasRookMoved;
 
@@ -229,6 +258,7 @@ export const useChessGame = () => {
                             undefined,
                         )
 
+                        console.log()
                         checkThreefoldRepetition(newHash);
                         return newHash;
                     });
@@ -314,13 +344,18 @@ export const useChessGame = () => {
                             && enPassantTarget?.row === row
                             && enPassantTarget?.col === col),
                     )
-
+                    
                     checkThreefoldRepetition(newHash);
 
                     return newHash;
                 });
 
                 setSelectedPiece(null);
+
+                if (gameMode === 'turn-based') {
+                    setCurrentTurn(prev => (prev === 'white' ? 'black' : 'white'));
+                }
+
                 return;
             }
         }
@@ -333,7 +368,12 @@ export const useChessGame = () => {
 
         setSelectedPiece(null);
     };
-    console.log(moveHistory)
+
+    const toggleGameMode = () => {
+        setGameMode(prev => (prev === 'turn-based' ? 'free-move' : 'turn-based'));
+        resetBoard();
+    };
+    console.log(gameMode)
     return {
         board,
         selectedPiece,
@@ -346,5 +386,10 @@ export const useChessGame = () => {
         moveHistory,
         hashHistory,
         resetBoard,
+        gameMode,
+        toggleGameMode,
+        currentTurn,
+        review,
+        setReview
     };
 };

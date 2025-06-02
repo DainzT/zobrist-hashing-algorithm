@@ -19,7 +19,7 @@ export const ZobristTile = ({
                 text-xs font-mono
                 transition-all duration-200
                 ${value !== null ?
-                    `text-[#5d8a66] bg-[#f0d9b5]/70 hover:bg-[#e5cfa5]` :
+                    `text-[#5d8a66] bg-[#f0d9b5] hover:bg-[#e5cfa5]` :
                     'bg-[#f8f5f0]'
                 }
                 ${isHighlighted ?

@@ -14,22 +14,25 @@ export const validateKingMove = (
     const movingPiece = board[from.row][from.col];
 
     if (!movingPiece || movingPiece.type !== 'king') return false;
+    const enemyColor = movingPiece.color === 'white' ? 'black' : 'white';
 
     if ((rowDiff <= 1 && colDiff <= 1)) {
         const targetPiece = board[to.row][to.col];
-        const movingPiece = board[from.row][from.col];
 
-        if (!movingPiece) return false;
         if (targetPiece && targetPiece.color === movingPiece.color) return false;
 
-        return true;
+        const tempBoard = JSON.parse(JSON.stringify(board));
+        tempBoard[to.row][to.col] = tempBoard[from.row][from.col];
+        tempBoard[from.row][from.col] = null;
+
+        return !isSquareUnderAttack(tempBoard, to, enemyColor);
     }
     if (rowDiff === 0 && colDiff === 2) {
         if (hasKingMoved) return false;
         if (isCheck) return false;
         return validateCastling(board, from, to, hasRookMoved, movingPiece?.color);
     }
-    
+
     return false;
 };
 
@@ -61,8 +64,14 @@ const validateCastling = (
         from.col + 2 * direction
     ];
 
+    const isEnemeyColor = color === 'white' ? 'black' : 'white'
+
+    if (isSquareUnderAttack(board, from, isEnemeyColor) || isSquareUnderAttack(board, { row: from.row, col: rookCol }, isEnemeyColor)) {
+        return false;
+    }
+
     for (const col of kingPathCols) {
-        if (isSquareUnderAttack(board, { row: from.row, col }, color === 'white' ? 'black' : 'white')) {
+        if (isSquareUnderAttack(board, { row: from.row, col }, isEnemeyColor)) {
             return false;
         }
     }

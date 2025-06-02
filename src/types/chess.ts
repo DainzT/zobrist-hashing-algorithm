@@ -30,7 +30,7 @@ export type PromotionData = {
     from?: Position;
 };
 
-export type gameStatus = 'draw' | 'whiteWin' | 'blacWin'
+export type gameStatus = 'draw' | 'checkmate' | 'ongoing'
 
 export interface PieceMove {
     piece: ChessPiece;
