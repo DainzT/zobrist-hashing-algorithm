@@ -43,7 +43,7 @@ export const useChessGame = () => {
     });
     const hashCounts = useRef(new Map<bigint, number>()).current;
     const hashHistory = useRef<bigint[]>([]);
-    const [gameMode, setGameMode] = useState<'turn-based' | 'free-move'>('turn-based');
+    const [gameMode, setGameMode] = useState<'turn-based' | 'free-move'>('free-move');
     const [currentTurn, setCurrentTurn] = useState<'white' | 'black'>('white');
     const [review, setReview] = useState<boolean>(false);
 
