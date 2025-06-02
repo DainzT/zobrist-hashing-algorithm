@@ -49,9 +49,21 @@ export interface PieceMove {
         color: Color;
         hash: bigint;
     } | null;
+    castlingRook?: {
+        rookCol: number
+        newRookCol: number
+        fromHash: bigint;
+        toHash: bigint;
+    } | null;
     isEnPassant: boolean;
     isCastling: boolean;
     isPromotion: boolean;
 
     moveHash: bigint;
 }
+
+export type RookMovedKeys =
+    | 'white-7-0'
+    | 'white-7-7'
+    | 'black-0-7'
+    | 'black-0-0';

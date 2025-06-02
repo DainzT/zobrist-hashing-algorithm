@@ -124,13 +124,15 @@ const ChessBoard = () => {
                                             toggleOnPrompt="Off Transparency"
                                             className="w-full"
                                         />
-                                        <ToggleButton
-                                            action={isLeft}
-                                            setAction={setIsLeft}
-                                            toggleOffPrompt="Switch Left"
-                                            toggleOnPrompt="Switch Right"
-                                            className="w-full"
-                                        />
+                                        {(showHashTable && showZobristTable) && (
+                                            <ToggleButton
+                                                action={isLeft}
+                                                setAction={setIsLeft}
+                                                toggleOffPrompt="Switch Left"
+                                                toggleOnPrompt="Switch Right"
+                                                className="w-full"
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -243,7 +245,8 @@ const ChessBoard = () => {
                 {(showHashTable && !showZobristTable) && (
                     <div
                         className="
-                            h-auto p-3 "
+                            h-auto p-3
+                        "
                     >
                         <div className="w-[500px]">
                             <HashTag
@@ -260,11 +263,11 @@ const ChessBoard = () => {
             {(showHashTable && showZobristTable) && (
                 <div
                     className={`
-                        ${isTransparent ? "opacity-20": "z-50"}
+                        ${isTransparent ? "opacity-20" : "z-50"}
                         absolute h-auto p-4  bg-white border border-[#5d8a66] rounded-md 
                         top-1/2 transform -translate-y-1/2 scale-98
                         shadow-lg transition-all duration-300
-                        ${isLeft ? "left-1 mt-27": "-right-0.5 mt-33 "}
+                        ${isLeft ? "left-1 mt-27" : "-right-0.5 mt-33 "}
                     `}
                 >
                     <div className="w-[500px] h-[500px] rounded-md ">

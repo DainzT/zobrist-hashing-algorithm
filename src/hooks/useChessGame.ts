@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useRef, useState } from 'react';
-import { Board, PieceMove, PieceType, Position, PromotionData } from '@/types/chess';
+import { Board, PieceMove, PieceType, Position, PromotionData, RookMovedKeys } from '@/types/chess';
 import { initializeZobristTable } from '@/utils/zobrist';
 import { validateMove } from '@/lib/rules';
 import { createInitialBoard } from '@/lib/chess/boardInitialization';
@@ -20,6 +20,20 @@ export const useChessGame = () => {
     });
     const [gameStatus, setGameStatus] = useState<string>('ongoing');
     const [moveHistory, setMoveHistory] = useState<PieceMove[]>([]);
+    const [castlingRights, setCastlingRights] = useState<{
+        whiteKingMoved: boolean;
+        blackKingMoved: boolean;
+        hasRookMoved: Record<RookMovedKeys, boolean>;
+    }>({
+        whiteKingMoved: false,
+        blackKingMoved: false,
+        hasRookMoved: {
+            'white-7-0': false,
+            'white-7-7': false,
+            'black-0-7': false,
+            'black-0-0': false
+        }
+    });
 
     const hashCounts = useRef(new Map<bigint, number>()).current;
     const hashHistory = useRef<bigint[]>([]);
@@ -38,8 +52,18 @@ export const useChessGame = () => {
         setMoveHistory([]);
         hashCounts.clear();
         hashHistory.current = [];
+        setCastlingRights({
+            whiteKingMoved: false,
+            blackKingMoved: false,
+            hasRookMoved: {
+                'white-7-0': false,
+                'white-7-7': false,
+                'black-0-7': false,
+                'black-0-0': false
+            }
+        });
     };
-
+    console.log(board)
     const checkThreefoldRepetition = (hash: bigint) => {
         const newCount = (hashCounts.get(hash) || 0) + 1;
         hashCounts.set(hash, newCount);
@@ -73,7 +97,7 @@ export const useChessGame = () => {
             );
 
             recordMove(
-                {type: pieceType, color: promotion.color!},
+                { type: pieceType, color: promotion.color! },
                 promotion.from!,
                 promotion.position!,
                 zobristTable,
@@ -111,9 +135,46 @@ export const useChessGame = () => {
         }
 
         if (selectedPiece && selected) {
-            if (validateMove(board, selectedPiece, position, enPassantTarget)) {
+            const kingMovedFlag = castlingRights[`${selected.color}KingMoved`];
+            const rookMovedFlags = castlingRights.hasRookMoved;
+
+            if (validateMove(
+                board,
+                selectedPiece,
+                position,
+                enPassantTarget,
+                kingMovedFlag,
+                rookMovedFlags,
+            )) {
                 const isPromotionMove = selected.type === 'pawn' && (row === 0 || row === 7);
                 const isCastlingMove = selected.type === 'king' && Math.abs(position.col - selectedPiece.col) === 2;
+
+                if (selected.type === 'king') {
+                    setCastlingRights(prev => ({
+                        ...prev,
+                        [`${selected.color}KingMoved`]: true
+                    }));
+                }
+
+                if (selected.type === 'rook') {
+                    setCastlingRights(prev => {
+                        const color = selected.color;
+                        const row = selectedPiece.row;
+                        const col = selectedPiece.col;
+                        const rookKey = `${color}-${row}-${col}` as RookMovedKeys;
+                        if (rookKey in prev.hasRookMoved && !prev.hasRookMoved[rookKey]) {
+                            return {
+                                ...prev,
+                                hasRookMoved: {
+                                    ...prev.hasRookMoved,
+                                    [rookKey]: true
+                                }
+                            };
+                        }
+                        return prev;
+
+                    });
+                }
 
                 if (isCastlingMove) {
                     setBoard(prev => {
@@ -129,6 +190,15 @@ export const useChessGame = () => {
                         if (rook) {
                             newBoard[row][rookCol] = null;
                             newBoard[row][newRookCol] = rook;
+                            const color = selected.color;
+                            const rookKey = `${color}-${row}-${rookCol}`;
+                            setCastlingRights(prev => ({
+                                ...prev,
+                                hasRookMoved: {
+                                    ...prev.hasRookMoved,
+                                    [rookKey]: true
+                                }
+                            }));
                         }
 
                         return newBoard;
@@ -145,6 +215,19 @@ export const useChessGame = () => {
                         const newRookCol = position.col > selectedPiece.col ? position.col - 1 : position.col + 1;
                         newHash ^= zobristTable[color]['rook'][row][rookCol];
                         newHash ^= zobristTable[color]['rook'][row][newRookCol];
+                        recordMove(
+                            selected,
+                            selectedPiece,
+                            position,
+                            zobristTable,
+                            currentHash,
+                            setMoveHistory,
+                            null,
+                            null,
+                            undefined,
+                            { valid: true, from: rookCol, to: newRookCol },
+                            undefined,
+                        )
 
                         checkThreefoldRepetition(newHash);
                         return newHash;
@@ -225,7 +308,11 @@ export const useChessGame = () => {
                         setMoveHistory,
                         clickedPiece,
                         { type: 'pawn', color: capturedColor },
-                        (selected.type === 'pawn' && Math.abs(col - selectedPiece.col) === 1 && !clickedPiece && enPassantTarget?.row === row && enPassantTarget?.col === col),
+                        (selected.type === 'pawn'
+                            && Math.abs(col - selectedPiece.col) === 1
+                            && !clickedPiece
+                            && enPassantTarget?.row === row
+                            && enPassantTarget?.col === col),
                     )
 
                     checkThreefoldRepetition(newHash);

@@ -1,4 +1,4 @@
-import { Board, Position } from "@/types/chess";
+import { Board, Position, RookMovedKeys } from "@/types/chess";
 import { validatePawnMove } from "./validatePawnMove";
 import { validateKnightMove } from "./validateKnightMove";
 import { validateBishopMove } from "./validateBishopMove";
@@ -12,16 +12,16 @@ export const validateMove = (
     to: Position,
     enPassantTarget?: Position | null,
     hasKingMoved?: boolean,
-    hasRookMoved?: Record<string, boolean>,
+    hasRookMoved?: Record<RookMovedKeys, boolean>,
     isCheck?: boolean
 ): boolean => {
     const piece = board[from.row][from.col];
     if (!piece) return false;
-    
+    console.log(hasKingMoved)
     if (isCheck === undefined) {
         isCheck = false;
     }
-
+    console.log("received", hasRookMoved)
     switch (piece.type) {
         case 'king':
             return validateKingMove(
@@ -29,7 +29,7 @@ export const validateMove = (
                 from,
                 to,
                 hasKingMoved || false,
-                hasRookMoved || {},
+                hasRookMoved!,
                 isCheck,
             );
         case 'queen':
