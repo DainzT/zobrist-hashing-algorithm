@@ -193,11 +193,12 @@ export const useChessGame = () => {
                 kingMovedFlag,
                 rookMovedFlags,
             )) {
-                if (wouldLeaveKingInCheck(board, selectedPiece, position, selected.color)) {
-                    setSelectedPiece(null);
-                    return;
-                };
-
+                if (gameMode === "turn-based") {
+                    if (wouldLeaveKingInCheck(board, selectedPiece, position, selected.color)) {
+                        setSelectedPiece(null);
+                        return;
+                    };
+                }
                 const isPromotionMove = selected.type === 'pawn' && (row === 0 || row === 7);
                 const isCastlingMove = selected.type === 'king' && Math.abs(position.col - selectedPiece.col) === 2;
 
