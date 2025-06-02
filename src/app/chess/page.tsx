@@ -169,6 +169,8 @@ const ChessBoard = () => {
             {gameMode === 'turn-based' && (
                 <TurnDisplay
                     currentTurn={currentTurn}
+                    gameStatus={gameStatus}
+                    winner={gameStatus === 'checkmate' ? currentTurn === 'white' ? 'black' : 'white' : undefined}
                 />
             )}
             <div className={`
