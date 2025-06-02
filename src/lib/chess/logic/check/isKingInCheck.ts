@@ -1,5 +1,5 @@
 import { Board, Position } from "@/types/chess";
-import { validateMove } from "../rules";
+import { validateMove } from "../../rules";
 
 export const isKingInCheck = (board: Board, kingPosition: Position, color: 'white' | 'black') => {
     const opponentColor = color === 'white' ? 'black' : 'white';

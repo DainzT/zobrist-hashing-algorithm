@@ -1,5 +1,5 @@
 import { Board, Color, Position } from "@/types/chess";
-import { findKingPosition } from "./findKingPosition";
+import { findKingPosition } from "../movement/findKingPosition";
 import { isKingInCheck } from "./isKingInCheck";
 
 export const wouldLeaveKingInCheck = (

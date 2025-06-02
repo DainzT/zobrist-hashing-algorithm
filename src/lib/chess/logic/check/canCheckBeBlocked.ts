@@ -1,7 +1,7 @@
 import { Board, Color, Position } from "@/types/chess";
-import { validateMove } from "../rules";
+import { validateMove } from "../../rules";
 import { wouldLeaveKingInCheck } from "./wouldLeaveKingInCheck";
-import { getSquaresBetween } from "./getSquaresBetween";
+import { getSquaresBetween } from "../movement/getSquaresBetween";
 
 export const canCheckBeBlocked = (board: Board, checkingPiecePos: Position, kingPosition: Position, color: Color): boolean => {
     const checkingPiece = board[checkingPiecePos.row][checkingPiecePos.col];
@@ -10,7 +10,7 @@ export const canCheckBeBlocked = (board: Board, checkingPiecePos: Position, king
     if (checkingPiece.type === 'knight' || checkingPiece.type === 'pawn') {
         return false;
     }
-    
+
     const squaresBetween = getSquaresBetween(checkingPiecePos, kingPosition);
 
     for (const square of squaresBetween) {

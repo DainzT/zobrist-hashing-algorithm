@@ -1,4 +1,4 @@
-import { getPieceSymbol } from "@/lib/chess/getPieceSymbol";
+import { getPieceSymbol } from "@/lib/chess/logic/board/getPieceSymbol";
 import { PieceMove } from "@/types/chess";
 
 interface HashTableRowProps {

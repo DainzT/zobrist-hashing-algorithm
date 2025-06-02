@@ -8,9 +8,9 @@ import { Position } from "@/types/chess";
 import { GameStatus } from "@/components/chess/GameStatus";
 import { HashTable } from "@/components/visualizer/HashTable";
 import { BoardCoordinates } from "@/components/chess/BoardCoordinates";
-import { ToggleButton } from "@/components/chess/buttons/ToggleButton";
-import { TogglePanelButton } from "@/components/chess/buttons/TogglePanelButton";
-import { RestartButton } from "@/components/chess/buttons/RestartButton";
+import { ToggleButton } from "@/components/controls/toggles/ToggleButton";
+import { TogglePanelButton } from "@/components/controls/toggles/TogglePanelButton";
+import { RestartButton } from "@/components/controls/buttons/RestartButton";
 import { HashTag } from "@/components/visualizer/HashTag";
 import { TurnDisplay } from "@/components/chess/TurnDisplay";
 

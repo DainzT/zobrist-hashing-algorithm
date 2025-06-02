@@ -1,18 +1,18 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Board, Color, gameStatus, PieceMove, PieceType, Position, PromotionData, RookMovedKeys } from '@/types/chess';
-import { initializeZobristTable } from '@/utils/zobrist';
-import { validateMove } from '@/lib/rules';
-import { createInitialBoard } from '@/lib/chess/boardInitialization';
-import { updateBoardAfterPromotion, updateHashAfterPromotion } from '@/lib/logic/chessPromotion';
-import { recordMove } from '@/lib/logic/recordMove';
-import { hasLegalMovesForKing } from '@/lib/logic/hasLegalMovesForKing';
-import { isKingInCheck } from '@/lib/logic/isKingInCheck';
-import { findKingPosition } from '@/lib/logic/findKingPosition';
-import { wouldLeaveKingInCheck } from '@/lib/logic/wouldLeaveKingInCheck';
-import { canCheckBeBlocked } from '@/lib/logic/canCheckBeBlocked';
-import { canCheckingPieceBeCaptured } from '@/lib/logic/canCheckingPieceBeCaptured';
-import { findAllCheckingPieces } from '@/lib/logic/findAllCheckingPieces';
+import { initializeZobristTable } from '@/lib/chess/utils/zobrist';
+import { validateMove } from '@/lib/chess/rules';
+import { createInitialBoard } from '@/lib/chess/logic/board/boardInitialization';
+import { updateBoardAfterPromotion, updateHashAfterPromotion } from '@/lib/chess/logic/promotion/chessPromotion';
+import { recordMove } from '@/lib/chess/logic/history/recordMove';
+import { hasLegalMovesForKing } from '@/lib/chess/logic/check/hasLegalMovesForKing';
+import { isKingInCheck } from '@/lib/chess/logic/check/isKingInCheck';
+import { findKingPosition } from '@/lib/chess/logic/movement/findKingPosition';
+import { wouldLeaveKingInCheck } from '@/lib/chess/logic/check/wouldLeaveKingInCheck';
+import { canCheckBeBlocked } from '@/lib/chess/logic/check/canCheckBeBlocked';
+import { canCheckingPieceBeCaptured } from '@/lib/chess/logic/check/canCheckingPieceBeCaptured';
+import { findAllCheckingPieces } from '@/lib/chess/logic/check/findAllCheckingPieces';
 
 export const useChessGame = () => {
     const zobristTable = useMemo(initializeZobristTable, []);

@@ -1,5 +1,5 @@
 import { Board, Color, Position } from "@/types/chess";
-import { validateMove } from "../rules";
+import { validateMove } from "../../rules";
 import { wouldLeaveKingInCheck } from "./wouldLeaveKingInCheck";
 
 export const canCheckingPieceBeCaptured = (board: Board, checkingPiecePos: Position, color: Color): boolean => {

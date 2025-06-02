@@ -1,5 +1,5 @@
 'use client'
-import { getPieceSymbol } from "@/lib/chess/getPieceSymbol";
+import { getPieceSymbol } from "@/lib/chess/logic/board/getPieceSymbol";
 import { ChessPiece as ChessPieceType } from "@/types/chess";
 
 interface ChessPieceProps {

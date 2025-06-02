@@ -1,5 +1,5 @@
 import { Board, Color, Position } from "@/types/chess";
-import { validateMove } from "../rules";
+import { validateMove } from "../../rules";
 
 export const findAllCheckingPieces = (board: Board, kingPosition: Position, color: Color): Position[] => {
     const checkingPieces: Position[] = [];
