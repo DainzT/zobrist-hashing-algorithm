@@ -46,7 +46,7 @@ export const useChessGame = () => {
     const [gameMode, setGameMode] = useState<'turn-based' | 'free-move'>('free-move');
     const [currentTurn, setCurrentTurn] = useState<'white' | 'black'>('white');
     const [review, setReview] = useState<boolean>(false);
-
+    console.log(zobristTable)
     const resetBoard = () => {
         setBoard(createInitialBoard());
         setSelectedPiece(null);
@@ -268,6 +268,10 @@ export const useChessGame = () => {
                         const newRookCol = position.col > selectedPiece.col ? position.col - 1 : position.col + 1;
                         newHash ^= zobristTable[color]['rook'][row][rookCol];
                         newHash ^= zobristTable[color]['rook'][row][newRookCol];
+
+                        newHash ^= zobristTable.castling[`${color}Kingside`];
+                        newHash ^= zobristTable.castling[`${color}Queenside`];
+
                         recordMove(
                             selected,
                             selectedPiece,
@@ -278,7 +282,13 @@ export const useChessGame = () => {
                             null,
                             null,
                             undefined,
-                            { valid: true, from: rookCol, to: newRookCol },
+                            {
+                                valid: true,
+                                from: rookCol,
+                                to: newRookCol,
+                                kingSideHash: zobristTable.castling[`${color}Kingside`],
+                                queenSideHash: zobristTable.castling[`${color}Queenside`]
+                            },
                             undefined,
                         )
 
@@ -287,6 +297,11 @@ export const useChessGame = () => {
                     });
 
                     setSelectedPiece(null);
+
+                    if (gameMode === 'turn-based') {
+                        setCurrentTurn(prev => (prev === 'white' ? 'black' : 'white'));
+                    }
+
                     return;
                 }
 
@@ -335,6 +350,7 @@ export const useChessGame = () => {
 
                 setCurrentHash(prev => {
                     let newHash = prev;
+                    
                     newHash ^= zobristTable[selected.color][selected.type][selectedPiece.row][selectedPiece.col];
 
                     // En passant capture
@@ -343,9 +359,10 @@ export const useChessGame = () => {
                         !clickedPiece && enPassantTarget?.row === row && enPassantTarget?.col === col) {
                         const capturedColor = selected.color === 'white' ? 'black' : 'white';
                         newHash ^= zobristTable[capturedColor]['pawn'][selectedPiece.row][col];
+
                     }
                     // Regular capture
-                    else if (clickedPiece) {
+                    if (clickedPiece) {
                         newHash ^= zobristTable[clickedPiece.color][clickedPiece.type][row][col];
                     }
 

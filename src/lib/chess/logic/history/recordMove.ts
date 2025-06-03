@@ -11,7 +11,7 @@ export const recordMove = (
     capturedPiece?: ChessPiece | null,
     enPassantCaptured?: ChessPiece | null,
     isEnPassant?: boolean,
-    isCastling?: { valid: boolean, from: number, to: number },
+    isCastling?: { valid: boolean, from: number, to: number, kingSideHash: bigint, queenSideHash: bigint },
     isPromotion?: boolean,
 ) => {
     const fromHash = zobristTable[piece.color][isPromotion ? 'pawn' : piece.type][from.row][from.col];
@@ -20,7 +20,9 @@ export const recordMove = (
         rookCol: isCastling.from,
         newRookCol: isCastling.to,
         fromHash: zobristTable[piece.color]['rook'][to.row][isCastling.from],
-        toHash: zobristTable[piece.color]['rook'][to.row][isCastling.to]
+        toHash: zobristTable[piece.color]['rook'][to.row][isCastling.to],
+        kingSideHash: isCastling.kingSideHash,
+        queenSideHash: isCastling.queenSideHash,
     } : null;
 
     const capturedPieceData: { type: PieceType; color: PieceColor; hash: bigint } | null = (() => {

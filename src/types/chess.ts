@@ -15,7 +15,18 @@ export interface ChessPiece {
 
 export type Board = (ChessPiece | null)[][];
 
-export type ZobristTable = Record<PieceColor, Record<PieceType, bigint[][]>>;
+export type CastlingRights = {
+    whiteKingside: bigint;
+    whiteQueenside: bigint;
+    blackKingside: bigint;
+    blackQueenside: bigint;
+};
+
+export type ZobristTable = {
+    white: Record<PieceType, bigint[][]>;
+    black: Record<PieceType, bigint[][]>;
+    castling: CastlingRights;
+};
 
 export interface Position {
     row: number;
@@ -54,6 +65,8 @@ export interface PieceMove {
         newRookCol: number
         fromHash: bigint;
         toHash: bigint;
+        kingSideHash: bigint;
+        queenSideHash: bigint;
     } | null;
     isEnPassant: boolean;
     isCastling: boolean;

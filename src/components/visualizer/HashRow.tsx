@@ -16,10 +16,16 @@ export const HashTableRow = ({
     const addHash = removeHash ^ move.to.hash;
 
     const captureHash = move.capturedPiece ? removeHash ^ move.capturedPiece.hash : removeHash;
-
     const resultingHash = move.capturedPiece ? captureHash ^ move.to.hash : addHash;
     const fromRookHash = move.castlingRook ? resultingHash ^ move.castlingRook.fromHash : null;
     const toRookHash = fromRookHash !== null && move.castlingRook ? fromRookHash ^ move.castlingRook.toHash : null;
+    const kingsideHash = toRookHash !== null && move.castlingRook?.kingSideHash
+        ? toRookHash ^ move.castlingRook.kingSideHash
+        : null;
+
+    const queenSideHash = kingsideHash !== null && move.castlingRook?.queenSideHash
+        ? kingsideHash ^ move.castlingRook.queenSideHash
+        : null;
 
     return (
         <tr key={index} className="hover:bg-[#f8f1e4] transition-colors border-b-2 border-[#e0d0b1] max-w-[500px] w-full ">
@@ -194,19 +200,33 @@ export const HashTableRow = ({
                                     = {toRookHash}n
                                 </div>
                             </div>
+                            <div className="bg-[#f0e5d9] p-1 rounded font-mono text-xs text-[#5d432c]">
+                                <div className="text-[#8a6d5d]">Remove Kingside:</div>
+                                <div>{toRookHash}n ^ {move.castlingRook.kingSideHash}n</div>
+                                <div className="text-[#4a766d] font-medium">
+                                    = {kingsideHash}n
+                                </div>
+                            </div>
+                            <div className="bg-[#f0e5d9] p-1 rounded font-mono text-xs text-[#5d432c]">
+                                <div className="text-[#8a6d5d]">Remove Queenside:</div>
+                                <div>{fromRookHash}n ^ {move.castlingRook.toHash}n</div>
+                                <div className="text-[#4a766d] font-medium">
+                                    = {queenSideHash}n
+                                </div>
+                            </div>
                         </>
                     )}
                 </div>
             </td>
             <td className="px-2 py-2 w-1/4">
                 <div className="font-mono bg-[#e5f0d9] text-[#4a766d] p-1 text-left font-medium text-xs">
-                    {move.castlingRook && fromRookHash !== null && toRookHash !== null ? (
-                        toRookHash.toString().length <= 2 ? (
-                            <div>{toRookHash.toString()}n</div>
+                    {move.castlingRook && fromRookHash !== null && queenSideHash !== null ? (
+                        queenSideHash.toString().length <= 2 ? (
+                            <div>{queenSideHash.toString()}n</div>
                         ) : (
                             <>
-                                <div>{toRookHash.toString().slice(0, 15)}</div>
-                                <div>{toRookHash.toString().slice(15, 20)}n</div>
+                                <div>{queenSideHash.toString().slice(0, 15)}</div>
+                                <div>{queenSideHash.toString().slice(15, 20)}n</div>
                             </>
                         )
                     ) : (
