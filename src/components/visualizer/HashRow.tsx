@@ -47,7 +47,7 @@ export const HashTableRow = ({
                                     {getPieceSymbol('pawn', move.piece.color)}
                                 </div>
                                 <div>
-                                    
+
                                 </div>
                                 <div>
                                     {getPieceSymbol(move.piece.type, move.piece.color)}
@@ -181,12 +181,14 @@ export const HashTableRow = ({
                     {move.castlingRook && fromRookHash !== null && toRookHash !== null && (
                         <>
                             <div className="bg-[#f0e5d9] p-1 rounded font-mono text-xs text-[#5d432c]">
+                                <div className="text-[#8a6d5d]">Remove:</div>
                                 <div>{captureHash}n ^ {move.castlingRook.fromHash}n</div>
                                 <div className="text-[#4a766d] font-medium">
                                     = {fromRookHash}n
                                 </div>
                             </div>
                             <div className="bg-[#f0e5d9] p-1 rounded font-mono text-xs text-[#5d432c]">
+                                <div className="text-[#8a6d5d]">Add:</div>
                                 <div>{fromRookHash}n ^ {move.castlingRook.toHash}n</div>
                                 <div className="text-[#4a766d] font-medium">
                                     = {toRookHash}n
@@ -199,15 +201,23 @@ export const HashTableRow = ({
             <td className="px-2 py-2 w-1/4">
                 <div className="font-mono bg-[#e5f0d9] text-[#4a766d] p-1 text-left font-medium text-xs">
                     {move.castlingRook && fromRookHash !== null && toRookHash !== null ? (
-                        <>
-                            <div>{toRookHash.toString().slice(0, 15)}</div>
-                            <div>{toRookHash.toString().slice(15, 20)}n</div>
-                        </>
+                        toRookHash.toString().length <= 2 ? (
+                            <div>{toRookHash.toString()}n</div>
+                        ) : (
+                            <>
+                                <div>{toRookHash.toString().slice(0, 15)}</div>
+                                <div>{toRookHash.toString().slice(15, 20)}n</div>
+                            </>
+                        )
                     ) : (
-                        <>
-                            <div>{resultingHash.toString().slice(0, 15)}</div>
-                            <div>{resultingHash.toString().slice(15, 20)}n</div>
-                        </>
+                        resultingHash.toString().length <= 2 ? (
+                            <div>{resultingHash.toString()}n</div>
+                        ) : (
+                            <>
+                                <div>{resultingHash.toString().slice(0, 15)}</div>
+                                <div>{resultingHash.toString().slice(15, 20)}n</div>
+                            </>
+                        )
                     )}
                 </div>
             </td>
