@@ -13,6 +13,8 @@ import { wouldLeaveKingInCheck } from '@/lib/chess/logic/check/wouldLeaveKingInC
 import { canCheckBeBlocked } from '@/lib/chess/logic/check/canCheckBeBlocked';
 import { canCheckingPieceBeCaptured } from '@/lib/chess/logic/check/canCheckingPieceBeCaptured';
 import { findAllCheckingPieces } from '@/lib/chess/logic/check/findAllCheckingPieces';
+import { playCaptureSound } from '@/lib/chess/sounds/playCaptureSound';
+import { playMoveSound } from '@/lib/chess/sounds/playMoveSound';
 
 export const useChessGame = () => {
     const zobristTable = useMemo(initializeZobristTable, []);
@@ -193,6 +195,13 @@ export const useChessGame = () => {
                 kingMovedFlag,
                 rookMovedFlags,
             )) {
+
+                if (clickedPiece) {
+                    playCaptureSound();
+                } else {
+                    playMoveSound();
+                }
+
                 if (gameMode === "turn-based") {
                     if (wouldLeaveKingInCheck(board, selectedPiece, position, selected.color)) {
                         setSelectedPiece(null);
@@ -350,7 +359,7 @@ export const useChessGame = () => {
 
                 setCurrentHash(prev => {
                     let newHash = prev;
-                    
+
                     newHash ^= zobristTable[selected.color][selected.type][selectedPiece.row][selectedPiece.col];
 
                     // En passant capture
@@ -364,6 +373,7 @@ export const useChessGame = () => {
                     // Regular capture
                     if (clickedPiece) {
                         newHash ^= zobristTable[clickedPiece.color][clickedPiece.type][row][col];
+
                     }
 
                     newHash ^= zobristTable[selected.color][selected.type][row][col];
@@ -389,7 +399,6 @@ export const useChessGame = () => {
 
                     return newHash;
                 });
-
                 setSelectedPiece(null);
 
                 if (gameMode === 'turn-based') {
