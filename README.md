@@ -13,7 +13,7 @@ bun dev
 ```
 
 # What is zobrist hashing?
-Zobrist Hashing is an algorithm widely applied in board games to efficenctly compare current positions with previous states of the board.
+Zobrist Hashing is an algorithm widely applied in board games to efficiently compare current positions with previous states of the board.
 It allows updating of hashes incrementally through the use of xor operations. Hashes are values that are use in calculating 
 positions. Each hash is designed to be unique to prevent collision. Collision occurs from having 2 different positions sharing the same key when 
 mapping. 
