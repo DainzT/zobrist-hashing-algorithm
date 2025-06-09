@@ -7,11 +7,11 @@ interface HashTableHeaderProps {
     onSort?: (column: string) => void;
 }
 
-export const HashTableHeader = ({ 
-    columns, 
-    sortable = false, 
-    currentSort, 
-    onSort 
+export const HashTableHeader = ({
+    columns,
+    sortable = false,
+    currentSort,
+    onSort
 }: HashTableHeaderProps) => {
     const handleClick = (column: string) => {
         if (sortable && onSort) {

@@ -48,7 +48,7 @@ export const useChessGame = () => {
     const [gameMode, setGameMode] = useState<'turn-based' | 'free-move'>('free-move');
     const [currentTurn, setCurrentTurn] = useState<'white' | 'black'>('white');
     const [review, setReview] = useState<boolean>(false);
-    console.log(zobristTable)
+
     const resetBoard = () => {
         setBoard(createInitialBoard());
         setSelectedPiece(null);
@@ -89,25 +89,26 @@ export const useChessGame = () => {
     };
 
     const checkForCheckmate = (board: Board, currentTurn: Color) => {
-        const kingPosition = findKingPosition(board, currentTurn);
+        if (gameMode === "turn-based") {
+            const kingPosition = findKingPosition(board, currentTurn);
+            if (isKingInCheck(board, kingPosition, currentTurn)) {
+                if (hasLegalMovesForKing(board, kingPosition, currentTurn)) {
+                    return;
+                }
 
-        if (gameMode === "turn-based" && isKingInCheck(board, kingPosition, currentTurn)) {
-            if (hasLegalMovesForKing(board, kingPosition, currentTurn)) {
-                return;
-            }
+                const checkingPieces = findAllCheckingPieces(board, kingPosition, currentTurn);
 
-            const checkingPieces = findAllCheckingPieces(board, kingPosition, currentTurn);
+                if (checkingPieces.length > 1) {
+                    setGameStatus('checkmate');
+                    return;
+                }
 
-            if (checkingPieces.length > 1) {
-                setGameStatus('checkmate');
-                return;
-            }
+                const canBeCaptured = canCheckingPieceBeCaptured(board, checkingPieces[0], currentTurn);
+                const canBeBlocked = canCheckBeBlocked(board, checkingPieces[0], kingPosition, currentTurn);
 
-            const canBeCaptured = canCheckingPieceBeCaptured(board, checkingPieces[0], currentTurn);
-            const canBeBlocked = canCheckBeBlocked(board, checkingPieces[0], kingPosition, currentTurn);
-
-            if (!canBeCaptured && !canBeBlocked) {
-                setGameStatus('checkmate');
+                if (!canBeCaptured && !canBeBlocked) {
+                    setGameStatus('checkmate');
+                }
             }
         }
     };
@@ -428,6 +429,7 @@ export const useChessGame = () => {
         setGameMode(prev => (prev === 'turn-based' ? 'free-move' : 'turn-based'));
         resetBoard();
     };
+
     return {
         board,
         selectedPiece,

@@ -1,17 +1,17 @@
 'use client'
 import { BoardTile } from "@/components/chess/BoardTiles";
-import { ZobristTile } from "@/components/visualizer/ZobristTile";
+import { ZobristTile } from "@/components/chess/visualizer/ZobristTile";
 import { useChessGame } from "@/hooks/useChessGame";
 import { PawnPromotion } from "@/components/chess/PawnPromotion";
 import { useState } from "react";
 import { Position } from "@/types/chess";
 import { GameStatus } from "@/components/chess/GameStatus";
-import { HashTable } from "@/components/visualizer/HashTable";
+import { HashTable } from "@/components/chess/visualizer/HashTable";
 import { BoardCoordinates } from "@/components/chess/BoardCoordinates";
 import { ToggleButton } from "@/components/controls/toggles/ToggleButton";
 import { TogglePanelButton } from "@/components/controls/toggles/TogglePanelButton";
 import { RestartButton } from "@/components/controls/buttons/RestartButton";
-import { HashTag } from "@/components/visualizer/HashTag";
+import { HashTag } from "@/components/chess/visualizer/HashTag";
 import { TurnDisplay } from "@/components/chess/TurnDisplay";
 
 const ChessBoard = () => {
@@ -292,7 +292,6 @@ const ChessBoard = () => {
                                 currentHash={currentHash}
                             />
                             <HashTable
-                                type='chess'
                                 moves={moveHistory}
                             />
                         </div>
@@ -314,7 +313,6 @@ const ChessBoard = () => {
                             currentHash={currentHash}
                         />
                         <HashTable
-                            type='chess'
                             moves={moveHistory}
                         />
                     </div>
