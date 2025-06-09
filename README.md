@@ -18,5 +18,5 @@ It allows updating of hashes incrementally through the use of xor operations. Ha
 positions. Each hash is designed to be unique to prevent collision. Collision occurs from having 2 different positions sharing the same key when 
 mapping. 
 
-# know how it interacts visually?
+# Want to know more about it & how it interacts visually?
 Open the link attached to this repository or download and run the repository itself to see the full content and how it is implemented in a chess game.
